@@ -1,3 +1,8 @@
+/*
+ * Multi SSH 0.3
+ * Run commands on multiple SSH Servers easily.
+ * Author: Hifzurrahman Patel (https://hifzu.tech)
+ */
 int valid_port(int *port) {
 
   int result = 0;

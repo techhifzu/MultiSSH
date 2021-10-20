@@ -1,7 +1,7 @@
 /*
- * Multi SSH 0.2
+ * Multi SSH 0.3
  * Run commands on multiple SSH Servers easily.
- * Author: Hifzurrahman Patel <hifzu@hifzu.tech>
+ * Author: Hifzurrahman Patel (https://hifzu.tech)
  */
 #define SSH_SERVERS_LIST "sshservers"
 
@@ -86,8 +86,11 @@ int main(int argc, char *argv[]) {
       rc = ssh_userauth_password(single_ssh_session, NULL, ssh_password);
 
   // if logged in, run command(s)
-      if (rc == SSH_AUTH_SUCCESS)
+      if (rc == SSH_AUTH_SUCCESS) {
+        printf("%s@%s:\n", ssh_username, ssh_server);
         run_command(single_ssh_session, argv[1]);
+        puts("");
+      }
 
       else {
         fprintf(stderr, "Error: %s, in %s line %d\n",
