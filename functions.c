@@ -28,6 +28,7 @@ void remove_new_line(char *string) {
 
 // run command(s), and display any resulting output
 int run_command(ssh_session session, char *command) {
+
   ssh_channel channel;
   int rc;
   char buffer[2048];

@@ -28,15 +28,18 @@ int main(int argc, char *argv[]) {
   char *string_ssh_port;
   char *ssh_username;
   char *ssh_password;
+  char *commands;
   ssh_session single_ssh_session;
 
 // requires one argument
   if (argc != 2) {
 
-    fprintf(stderr, "Usage: %s 'command(s)'\n", argv[0]);
+    fprintf(stderr, "Usage: %s 'command(s)'\n\n", argv[0]);
     exit(EXIT_FAILURE);
 
   }
+
+  commands = argv[1];
 
   ssh_fp = fopen(SSH_SERVERS_LIST, "r");
 
@@ -44,7 +47,7 @@ int main(int argc, char *argv[]) {
    if (ssh_fp == NULL) {
 
       error_number = errno;
-      fprintf(stderr, "Error opening SSH servers list '%s': %s\n", SSH_SERVERS_LIST, strerror(error_number));
+      fprintf(stderr, "Error opening SSH servers list '%s': %s\n\n", SSH_SERVERS_LIST, strerror(error_number));
       exit(EXIT_FAILURE);
 
     }
@@ -62,38 +65,45 @@ int main(int argc, char *argv[]) {
       ssh_port = atoi(string_ssh_port);
 
       if (strlen(ssh_line) > 512)
-         fprintf(stderr, "Error with line %d, maximum length reached in %s, each line must be no more than 512 characters long.\n", line_number, SSH_SERVERS_LIST);
+         fprintf(stderr, "Error with line %d, maximum length reached in %s, each line must be no more than 512 characters long.\n\n", line_number, SSH_SERVERS_LIST);
 
       if (!(valid_port(&ssh_port)))
-         fprintf(stderr, "Error invalid port number %d in the file '%s', line %d.\n", ssh_port, SSH_SERVERS_LIST, line_number);
+         fprintf(stderr, "Error invalid port number %d in the file '%s', line %d.\n\n", ssh_port, SSH_SERVERS_LIST, line_number);
 
          single_ssh_session = ssh_new();
 
       if (single_ssh_session == NULL)
-         fprintf(stderr, "Error creating new session.\n");
+         fprintf(stderr, "Error creating new SSH session for %s:%s\n\n", ssh_server, string_ssh_port);
 
       ssh_options_set(single_ssh_session, SSH_OPTIONS_HOST, ssh_server);
       ssh_options_set(single_ssh_session, SSH_OPTIONS_PORT, &ssh_port);
       ssh_options_set(single_ssh_session, SSH_OPTIONS_USER, ssh_username);
 
+      remove_new_line(ssh_password);
+
       rc = ssh_connect(single_ssh_session);
 
-      if (rc != SSH_OK)
-        fprintf(stderr, "Error connecting to %s: %s\n", ssh_server, ssh_get_error(single_ssh_session));
+      if (rc != SSH_OK) {
 
-      remove_new_line(ssh_password);
+        fprintf(stderr, "Error connecting to %s:%s %s\n\n", ssh_server, string_ssh_port, ssh_get_error(single_ssh_session));
+        ssh_free(single_ssh_session);
+        continue;
+
+      }
 
       rc = ssh_userauth_password(single_ssh_session, NULL, ssh_password);
 
   // if logged in, run command(s)
       if (rc == SSH_AUTH_SUCCESS) {
-        printf("%s@%s:\n", ssh_username, ssh_server);
-        run_command(single_ssh_session, argv[1]);
-        puts("");
+
+       printf("Running %s on %s@%s:\n\n", commands, ssh_username, ssh_server);
+       run_command(single_ssh_session, commands);
+       puts("");
+
       }
 
       else {
-        fprintf(stderr, "Error: %s, in %s line %d\n",
+        fprintf(stderr, "Error: %s, in %s line %d\n\n",
         ssh_get_error(single_ssh_session), SSH_SERVERS_LIST, line_number);
       }
 
