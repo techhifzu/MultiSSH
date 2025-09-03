@@ -1,5 +1,5 @@
 # MultiSSH
-MultiSSH is a systems administration tool that runs Linux/Unix commands on multiple ssh servers, it is a lightweight tool that is easy to setup and use.
+MultiSSH is a systems administration tool that runs Linux/Unix commands on multiple ssh servers, it is a lightweight command line tool that is easy to setup and use. It is designed to be easily used in scripts or standalone.
 
 Setup
 -----
